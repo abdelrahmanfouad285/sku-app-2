@@ -80,7 +80,7 @@ Follow these steps internally before answering:
 
 STRICT RULES — read carefully:
 - Only report a brand, product name, flavor, or SKU if you can literally read it printed on the packaging in the image. NEVER infer, guess, or generalize a brand from the product category (e.g. do not write "Energizer" or "generic energy drink" just because a can looks like an energy drink — if you cannot read the brand text clearly, set the field to null and confidence to "low").
-- Text may be in Arabic, English, or both. Extract whichever is legible; if only Arabic is visible, put the Arabic text in "product_name" as-is — do not translate or invent an English equivalent.
+- Text may be in Arabic, English, or both. ALWAYS translate or transliterate any Arabic text into English. The final output for product_name, rand, and lavor_or_variant MUST be written in English. Do not include Arabic characters in the JSON output.
 - The "sku" field must NEVER be null. If an official SKU is not printed on the package, you MUST generate a short logical code based on the brand, product name, and flavor (e.g., "GOR-MANG-330" or "PEPSI-MAX").
 - The "quantity_or_size" field must NEVER be null. Extract net weight or volume if printed (e.g., "330ml", "500g", "1L"). If not visibly printed, you MUST estimate it based on the container type (e.g., "approx 330ml can" or "large bottle").
 - If the image is too blurry, too small, or too obstructed to read a field, set it to null. A null field is correct behavior, not a failure.
