@@ -79,11 +79,11 @@ Follow these steps internally before answering:
 4. Do NOT merge similar-looking items into one entry. Do NOT skip items because they look similar to one already listed. If you are unsure whether two cans are the same or different, list them as separate items and set confidence to "low".
 
 STRICT RULES — read carefully:
-- Only report a brand, product name, flavor, or SKU if you can literally read it printed on the packaging in the image. NEVER infer, guess, or generalize a brand from the product category (e.g. do not write "Energizer" or "generic energy drink" just because a can looks like an energy drink — if you cannot read the brand text clearly, set the field to null and confidence to "low").
+- You MUST always provide a brand, product name, and flavor, even if it is blurry. Infer or guess the brand from the product category, colors, logo shapes, or context (e.g., if it looks like a generic energy drink, guess the brand or product name). NEVER leave these fields null.
 - Text may be in Arabic, English, or both. ALWAYS translate or transliterate any Arabic text into English. The final output for product_name, rand, and lavor_or_variant MUST be written in English. Do not include Arabic characters in the JSON output.
 - The "sku" field must NEVER be null. If an official SKU is not printed on the package, you MUST generate a short logical code based on the brand, product name, and flavor (e.g., "GOR-MANG-330" or "PEPSI-MAX").
 - The "size" field must NEVER be null. Extract net weight or volume if printed (e.g., "330ml", "500g", "1L"). If not visibly printed, you MUST estimate it based on the container type (e.g., "approx 330ml can" or "large bottle").
-- If the image is too blurry, too small, or too obstructed to read a field, set it to null. A null field is correct behavior, not a failure.
+- If the image is too blurry, too small, or obstructed, YOU MUST GUESS the missing fields based on surrounding items or container shape. A null field is a failure; always provide a text value or integer.
 - Confidence must reflect true certainty:
   - "high": brand, product name, and flavor/size are all clearly legible
   - "medium": most fields legible, one or two uncertain or partially obscured
@@ -96,13 +96,13 @@ OUTPUT FORMAT — return ONLY valid JSON, no markdown fences, no commentary, no 
   "items": [
     {{
       "sku": string,
-      "brand": string or null,
-      "product_name": string or null,
-      "flavor_or_variant": string or null,
+      "brand": string,
+      "product_name": string,
+      "flavor_or_variant": string (use "Original" or "Regular" if none exists),
       "size": string,
-      "quantity": integer or null,
+      "quantity": integer (guess if obscured),
       "confidence": "high" | "medium" | "low",
-      "notes": string
+      "notes": string (use "None" if nothing to add)
     }}
   ]
 }}
