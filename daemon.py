@@ -136,7 +136,8 @@ def run_sync():
                         for r in rows:
                             core.append_product(r)
                         
-                        print(f"Success with {model_name}! Found {item_count} items.", flush=True)
+                        print(f"Success with {model_name}! Found {item_count} items. Sleeping 4s for rate limits...", flush=True)
+                        time.sleep(4.5)  # Google free tier allows 15 requests per minute
                         success = True
                         break
                     except Exception as e:
