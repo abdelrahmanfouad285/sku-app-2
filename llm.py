@@ -82,7 +82,7 @@ STRICT RULES — read carefully:
 - Only report a brand, product name, flavor, or SKU if you can literally read it printed on the packaging in the image. NEVER infer, guess, or generalize a brand from the product category (e.g. do not write "Energizer" or "generic energy drink" just because a can looks like an energy drink — if you cannot read the brand text clearly, set the field to null and confidence to "low").
 - Text may be in Arabic, English, or both. ALWAYS translate or transliterate any Arabic text into English. The final output for product_name, rand, and lavor_or_variant MUST be written in English. Do not include Arabic characters in the JSON output.
 - The "sku" field must NEVER be null. If an official SKU is not printed on the package, you MUST generate a short logical code based on the brand, product name, and flavor (e.g., "GOR-MANG-330" or "PEPSI-MAX").
-- The "quantity_or_size" field must NEVER be null. Extract net weight or volume if printed (e.g., "330ml", "500g", "1L"). If not visibly printed, you MUST estimate it based on the container type (e.g., "approx 330ml can" or "large bottle").
+- The "size" field must NEVER be null. Extract net weight or volume if printed (e.g., "330ml", "500g", "1L"). If not visibly printed, you MUST estimate it based on the container type (e.g., "approx 330ml can" or "large bottle").
 - If the image is too blurry, too small, or too obstructed to read a field, set it to null. A null field is correct behavior, not a failure.
 - Confidence must reflect true certainty:
   - "high": brand, product name, and flavor/size are all clearly legible
@@ -99,8 +99,8 @@ OUTPUT FORMAT — return ONLY valid JSON, no markdown fences, no commentary, no 
       "brand": string or null,
       "product_name": string or null,
       "flavor_or_variant": string or null,
-      "quantity_or_size": string,
-      "visible_unit_count": integer or null,
+      "size": string,
+      "quantity": integer or null,
       "confidence": "high" | "medium" | "low",
       "notes": string
     }}

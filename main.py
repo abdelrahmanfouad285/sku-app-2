@@ -91,7 +91,7 @@ def _dedupe_items(items: list) -> list:
             (it.get("brand") or "").strip().lower(),
             (it.get("product_name") or "").strip().lower(),
             (it.get("flavor_or_variant") or "").strip().lower(),
-            (it.get("quantity_or_size") or "").strip().lower(),
+            (it.get("size") or "").strip().lower(),
         )
         if key in seen:
             dups += 1
@@ -197,8 +197,8 @@ def process_image(
             "product_name": clean.get("product_name"),
             "brand": clean.get("brand"),
             "flavor_or_variant": clean.get("flavor_or_variant"),
-            "quantity_or_size": clean.get("quantity_or_size"),
-            "visible_unit_count": clean.get("visible_unit_count"),
+            "size": clean.get("size"),
+            "quantity": clean.get("quantity"),
             "confidence": (clean.get("confidence") or "low"),
             "notes": clean.get("notes"),
         })

@@ -160,6 +160,10 @@ def _load_existing_excel() -> pd.DataFrame:
         df = pd.read_sql_table('sku_data', engine)
         if 'barcode_number' in df.columns:
             df = df.drop(columns=['barcode_number'])
+        if 'quantity_or_size' in df.columns:
+            df = df.rename(columns={'quantity_or_size': 'size'})
+        if 'visible_unit_count' in df.columns:
+            df = df.rename(columns={'visible_unit_count': 'quantity'})
         for col in core.EXCEL_COLUMNS:
             if col not in df.columns:
                 df[col] = None
@@ -325,7 +329,7 @@ with tab_data:
             needs_review = st.checkbox(
                 "Show only rows needing review (yellow)",
                 value=False,
-                help="Low confidence OR any null in sku/product_name/brand/qty",
+                help="Low confidence OR any null in sku/product_name/brand/quantity",
             )
         with fcols[1]:
             brands = sorted({b for b in df["brand"].dropna().unique() if str(b).strip()})
@@ -335,7 +339,7 @@ with tab_data:
             conf_filter = st.multiselect("Filter by confidence", options=conf_options, default=[])
 
     # "Needs review" uses the same fields the Excel writer highlights on.
-    required_for_review = ("sku", "product_name", "brand", "quantity_or_size")
+    required_for_review = ("sku", "product_name", "brand", "size")
 
     view_df = df.copy()
     if needs_review:

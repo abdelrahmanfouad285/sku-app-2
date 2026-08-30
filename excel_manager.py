@@ -5,12 +5,17 @@ from pipeline_helpers import OUTPUT_DIR
 
 EXCEL_COLUMNS = [
     "source_filename",
+    "processed_at",
     "item_index",
+    "item_count",
     "sku",
     "product_name",
     "brand",
-    "quantity_or_size",
+    "flavor_or_variant",
+    "size",
+    "quantity",
     "confidence",
+    "notes",
 ]
 EXCEL_PATH = OUTPUT_DIR / "sku_data.xlsx"
 
@@ -26,12 +31,12 @@ def _get_engine():
     return create_engine(url)
 
 def _needs_review(row: dict) -> bool:
-    required = ("sku", "product_name", "brand", "quantity_or_size")
+    required = ("sku", "product_name", "brand", "size")
     for field in required:
         v = row.get(field)
         if v is None or str(v).strip() == "":
             return True
-    conf = str(row.get("confidence", "")).lower()
+    conf = str(row.get("confidence", ""))[:3].lower()
     if conf == "low":
         return True
     return False
@@ -48,6 +53,12 @@ def append_product(row: dict) -> bool:
     try:
         # Read existing to check for duplicates
         existing_df = pd.read_sql_table('sku_data', engine)
+        if 'barcode_number' in existing_df.columns:
+            existing_df = existing_df.drop(columns=['barcode_number'])
+        if 'quantity_or_size' in existing_df.columns:
+            existing_df = existing_df.rename(columns={'quantity_or_size': 'size'})
+        if 'visible_unit_count' in existing_df.columns:
+            existing_df = existing_df.rename(columns={'visible_unit_count': 'quantity'})
         fn = row.get("source_filename") or ""
         idx = int(row.get("item_index") or 0)
         
@@ -77,6 +88,12 @@ def append_rows_to_excel(df: pd.DataFrame) -> None:
     
     try:
         existing_df = pd.read_sql_table('sku_data', engine)
+        if 'barcode_number' in existing_df.columns:
+            existing_df = existing_df.drop(columns=['barcode_number'])
+        if 'quantity_or_size' in existing_df.columns:
+            existing_df = existing_df.rename(columns={'quantity_or_size': 'size'})
+        if 'visible_unit_count' in existing_df.columns:
+            existing_df = existing_df.rename(columns={'visible_unit_count': 'quantity'})
         # Update existing or append
         for _, row in df.iterrows():
             fn = row.get("source_filename") or ""

@@ -43,14 +43,14 @@ def test_excel_columns() -> None:
     expected = {
         "source_filename", "processed_at", "item_index", "item_count",
         "sku", "product_name", "brand",
-        "flavor_or_variant", "quantity_or_size", "visible_unit_count",
+        "flavor_or_variant", "size", "quantity",
         "confidence", "notes",
     }
     assert set(EXCEL_COLUMNS) == expected, f"column set mismatch: {set(EXCEL_COLUMNS)} vs {expected}"
     assert "price" not in EXCEL_COLUMNS, "price column should be removed"
     assert "flavor_or_variant" in EXCEL_COLUMNS, "flavor_or_variant column missing"
-    assert "visible_unit_count" in EXCEL_COLUMNS, "visible_unit_count column missing"
-    _ok("EXCEL_COLUMNS contains all expected fields (no price; with flavor_or_variant + visible_unit_count)")
+    assert "quantity" in EXCEL_COLUMNS, "quantity column missing"
+    _ok("EXCEL_COLUMNS contains all expected fields (no price; with flavor_or_variant + quantity)")
 
 
 def test_excel_append_and_dedup(tmpdir: Path) -> None:
@@ -71,7 +71,7 @@ def test_excel_append_and_dedup(tmpdir: Path) -> None:
             "sku": "X1",
             "product_name": "Test",
             "brand": "Acme",
-            "quantity_or_size": "500ml",
+            "size": "500ml",
             "price": "10.00",
             "confidence": "high",
             "notes": None,
@@ -88,7 +88,7 @@ def test_excel_append_and_dedup(tmpdir: Path) -> None:
             "sku": None,
             "product_name": None,
             "brand": None,
-            "quantity_or_size": None,
+            "size": None,
             "price": None,
             "confidence": "low",
             "notes": "blurry",
@@ -103,7 +103,7 @@ def test_excel_append_and_dedup(tmpdir: Path) -> None:
             "sku": "X1",
             "product_name": "Test",
             "brand": "Acme",
-            "quantity_or_size": "500ml",
+            "size": "500ml",
             "price": "10.00",
             "confidence": "high",
             "notes": None,
