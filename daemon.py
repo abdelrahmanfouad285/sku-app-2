@@ -102,6 +102,11 @@ def run_sync():
                 
                 print(f"Success! Found {item_count} items.", flush=True)
             except Exception as e:
+                error_str = str(e)
+                if '429' in error_str and 'quota' in error_str.lower():
+                    print("⚠️  Google Gemini API Daily Quota Exceeded (20/day limit). Stopping sync for now.", flush=True)
+                    print("The GitHub Action will try again later, but won't process more until tomorrow unless billing is enabled.", flush=True)
+                    sys.exit(0)
                 print(f"Error processing {url}: {e}", flush=True)
                 traceback.print_exc()
             finally:
