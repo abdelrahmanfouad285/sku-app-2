@@ -206,7 +206,7 @@ with st.sidebar:
 st.title("AI SKU Agent")
 st.caption("Drop product photos into input_photos/. Google Gemini extracts SKU data directly into this editable table.")
 
-tab_upload, tab_data, tab_log = st.tabs(["📤 Upload & Process", "📊 Results & Edit", "📜 Log"])
+tab_upload, tab_data, tab_sql, tab_log = st.tabs(["📤 Upload & Process", "📊 Results & Edit", "📜 Log"])
 
 
 # ---- Tab 1: Upload & Process ---------------------------------------------
@@ -431,6 +431,22 @@ with tab_data:
             except Exception as exc:
                 st.error(f"Clear failed: {exc}")
 
+
+
+# ---- Tab SQL Auto-Sync ---------------------------------------------------
+with tab_sql:
+    st.subheader("🗄️ Sync Photos from SQL Database")
+    st.write("Click this button to automatically pull any new photos uploaded to the `audit_records` table, process them with Gemini, and save the extracted items into `sku_data`.")
+    
+    if st.button("🚀 Run SQL Sync Now", type="primary"):
+        import daemon
+        with st.spinner("Syncing with database and extracting products (this may take a few minutes)..."):
+            try:
+                daemon.run_sync()
+                st.success("✅ Sync complete! Check the View Data tab to see the new rows.")
+            except Exception as e:
+                st.error(f"Failed to sync: {e}")
+                
 
 # ---- Tab 3: Log ----------------------------------------------------------
 
