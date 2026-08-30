@@ -1,5 +1,5 @@
-"""
-SKU Data Agent — Streamlit UI (Simple Design)
+﻿"""
+SKU Data Agent â€” Streamlit UI (Simple Design)
 ----------------------------------------------
 A simple local web UI for the SKU data extraction pipeline. Wraps the core
 functions in main.py so the user can:
@@ -34,10 +34,10 @@ from openpyxl.styles import PatternFill
 load_dotenv()
 
 # ---------------------------------------------------------------------------
-# Session state initialization — MUST happen before any st.* calls
+# Session state initialization â€” MUST happen before any st.* calls
 # ---------------------------------------------------------------------------
 
-# Files we'll accept in the uploader — must match pipeline_helpers.VALID_EXTS
+# Files we'll accept in the uploader â€” must match pipeline_helpers.VALID_EXTS
 _ACCEPTED_EXTS = ("jpg", "jpeg", "png", "heic", "heif")
 
 
@@ -87,7 +87,7 @@ def check_password():
     if st.session_state.get('password_correct', False):
         return True
 
-    st.markdown('# 🔒 Secure Login')
+    st.markdown('# ðŸ”’ Secure Login')
     st.text_input('Enter Password', type='password', on_change=password_entered, key='password')
     if 'password_correct' in st.session_state and not st.session_state['password_correct']:
         st.error('Incorrect password')
@@ -120,7 +120,7 @@ def _save_uploaded_files(uploaded_files) -> tuple[list[Path], list[str]]:
     skipped: list[str] = []
     for up in uploaded_files:
         # The uploader already filters by `type=` on the client side, but be
-        # defensive — a malicious or buggy client could still send anything.
+        # defensive â€” a malicious or buggy client could still send anything.
         ext = Path(up.name).suffix.lower().lstrip(".")
         if ext not in _ACCEPTED_EXTS:
             skipped.append(f"{up.name}: unsupported type '.{ext}'")
@@ -185,13 +185,13 @@ def _to_excel_bytes(df: pd.DataFrame) -> bytes:
 
 
 # ---------------------------------------------------------------------------
-# Sidebar — settings
+# Sidebar â€” settings
 # ---------------------------------------------------------------------------
 
 with st.sidebar:
-    st.header("⚙️ Settings")
+    st.header("âš™ï¸ Settings")
     st.caption("Using Google Gemini API.")
-    st.session_state.model = "Gemini 1.5 Flash (Cloud)"
+    st.session_state.model = "Gemini 2.5 Flash (Cloud)"
     
     st.selectbox(
         "AI Vision Model",
@@ -206,7 +206,7 @@ with st.sidebar:
 st.title("AI SKU Agent")
 st.caption("Drop product photos into input_photos/. Google Gemini extracts SKU data directly into this editable table.")
 
-tab_upload, tab_data, tab_sql, tab_log = st.tabs(["📥 Upload & Process", "📊 Results & Edit", "🗄️ SQL Auto-Sync", "📝 Log"])
+tab_upload, tab_data, tab_sql, tab_log = st.tabs(["ðŸ“¥ Upload & Process", "ðŸ“Š Results & Edit", "ðŸ—„ï¸ SQL Auto-Sync", "ðŸ“ Log"])
 
 
 # ---- Tab 1: Upload & Process ---------------------------------------------
@@ -225,17 +225,17 @@ with tab_upload:
 
     cols = st.columns([1, 1, 2])
     with cols[0]:
-        save_clicked = st.button("💾  Save uploads", width='stretch')
+        save_clicked = st.button("ðŸ’¾  Save uploads", width='stretch')
     with cols[1]:
         run_clicked = st.button(
-            "🚀  Process all images in input_photos/",
+            "ðŸš€  Process all images in input_photos/",
             type="primary",
             width='stretch',
             disabled=st.session_state.processing or not True,
         )
     with cols[2]:
         pending = len(list(core.INPUT_DIR.iterdir())) if core.INPUT_DIR.exists() else 0
-        st.caption(f"Folder: `{core.INPUT_DIR.resolve()}`  •  ⏳ Pending: {pending}")
+        st.caption(f"Folder: `{core.INPUT_DIR.resolve()}`  â€¢  â³ Pending: {pending}")
 
     if save_clicked and uploaded:
         saved, skipped = _save_uploaded_files(uploaded)
@@ -249,7 +249,7 @@ with tab_upload:
     if run_clicked:
         st.session_state.processing = True
         st.session_state.log_lines = []
-        progress = st.progress(0.0, text="Starting…")
+        progress = st.progress(0.0, text="Startingâ€¦")
         status = st.empty()
 
         client = None
@@ -265,7 +265,7 @@ with tab_upload:
             new_rows: list[dict] = []
             failures = 0
             for i, img_path in enumerate(images, start=1):
-                status.info(f"Processing {img_path.name} ({i}/{len(images)})…")
+                status.info(f"Processing {img_path.name} ({i}/{len(images)})â€¦")
                 # --- LLM + validation stage ---
                 try:
                     rows, item_count = core.process_image(None, img_path, st.session_state.model)
@@ -303,7 +303,7 @@ with tab_upload:
             elapsed = time.perf_counter() - t0
             st.session_state.rows.extend(new_rows)
             summary = (
-                f"Done in {elapsed:.1f}s — {len(new_rows)} row(s) added, {failures} failure(s). "
+                f"Done in {elapsed:.1f}s â€” {len(new_rows)} row(s) added, {failures} failure(s). "
                 f"Workbook: {core.EXCEL_PATH}"
             )
             st.session_state["_last_summary"] = summary
@@ -317,7 +317,7 @@ with tab_upload:
 with tab_data:
     df = _load_existing_excel()
 
-    with st.expander("🔎  Filters", expanded=False):
+    with st.expander("ðŸ”Ž  Filters", expanded=False):
         fcols = st.columns(3, gap="medium")
         with fcols[0]:
             needs_review = st.checkbox(
@@ -362,17 +362,17 @@ with tab_data:
 
     bcols = st.columns([1, 1, 1, 2])
     with bcols[0]:
-        save_edits = st.button("💾  Save edits", type="primary", disabled=view_df.empty)
+        save_edits = st.button("ðŸ’¾  Save edits", type="primary", disabled=view_df.empty)
     with bcols[1]:
         st.download_button(
-            "⬇️  CSV",
+            "â¬‡ï¸  CSV",
             data=_to_csv_bytes(df),
             file_name=f"sku_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
             mime="text/csv",
         )
     with bcols[2]:
         st.download_button(
-            "⬇️  Excel",
+            "â¬‡ï¸  Excel",
             data=_to_excel_bytes(df),
             file_name=f"sku_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -409,17 +409,17 @@ with tab_data:
 
     # --- Per-image log (current session) ---
     if st.session_state.get("log_lines"):
-        with st.expander("📋  Per-image log (this session)", expanded=False):
+        with st.expander("ðŸ“‹  Per-image log (this session)", expanded=False):
             st.code("\n".join(st.session_state.log_lines[-50:]), language="log")
 
 
-    with st.expander("⚠️  Danger zone", expanded=False):
+    with st.expander("âš ï¸  Danger zone", expanded=False):
         st.caption(
             "These actions permanently delete data. Download a backup first "
             "using the buttons above."
         )
         confirm = st.checkbox("I understand this will delete all data", key="clear_confirm")
-        if st.button("🗑️  Clear table", type="secondary", disabled=not confirm):
+        if st.button("ðŸ—‘ï¸  Clear table", type="secondary", disabled=not confirm):
             try:
                 empty_df = pd.DataFrame(columns=core.EXCEL_COLUMNS)
                 _write_dataframe_to_excel(empty_df)
@@ -435,15 +435,15 @@ with tab_data:
 
 # ---- Tab SQL Auto-Sync ---------------------------------------------------
 with tab_sql:
-    st.subheader("🗄️ Sync Photos from SQL Database")
+    st.subheader("ðŸ—„ï¸ Sync Photos from SQL Database")
     st.write("Click this button to automatically pull any new photos uploaded to the `audit_records` table, process them with Gemini, and save the extracted items into `sku_data`.")
     
-    if st.button("🚀 Run SQL Sync Now", type="primary"):
+    if st.button("ðŸš€ Run SQL Sync Now", type="primary"):
         import daemon
         with st.spinner("Syncing with database and extracting products (this may take a few minutes)..."):
             try:
                 daemon.run_sync()
-                st.success("✅ Sync complete! Check the View Data tab to see the new rows.")
+                st.success("âœ… Sync complete! Check the View Data tab to see the new rows.")
             except Exception as e:
                 st.error(f"Failed to sync: {e}")
                 
