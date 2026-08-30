@@ -206,7 +206,7 @@ with st.sidebar:
 st.title("AI SKU Agent")
 st.caption("Drop product photos into input_photos/. Google Gemini extracts SKU data directly into this editable table.")
 
-tab_upload, tab_data, tab_sql, tab_log = st.tabs(["📤 Upload & Process", "📊 Results & Edit", "📜 Log"])
+tab_upload, tab_data, tab_sql, tab_log = st.tabs(["📥 Upload & Process", "📊 Results & Edit", "🗄️ SQL Auto-Sync", "📝 Log"])
 
 
 # ---- Tab 1: Upload & Process ---------------------------------------------
