@@ -32,7 +32,7 @@ def download_image(url: str, dest_dir: Path) -> Path | None:
             f.write(response.content)
         return path
     except Exception as e:
-        print(f"Failed to download {url}: {e}")
+        print(f"Failed to download {url}: {e}", flush=True)
         return None
 
 def run_sync():
@@ -46,7 +46,7 @@ def run_sync():
     except:
         processed_urls = set()
         
-    print(f"Found {len(processed_urls)} already processed URLs.")
+    print(f"Found {len(processed_urls, flush=True)} already processed URLs.", flush=True)
 
     # Get URLs from audit_records
     query = """
@@ -76,11 +76,11 @@ def run_sync():
                 if url not in processed_urls:
                     new_urls.add(url)
                     
-    print(f"Found {len(new_urls)} new URLs to process.")
+    print(f"Found {len(new_urls, flush=True)} new URLs to process.", flush=True)
     
     core.ensure_dirs()
     for url in list(new_urls):
-        print(f"Processing {url}...")
+        print(f"Processing {url}...", flush=True)
         img_path = download_image(url, core.INPUT_DIR)
         if img_path:
             try:
@@ -100,9 +100,9 @@ def run_sync():
                 for r in rows:
                     core.append_product(r)
                 
-                print(f"Success! Found {item_count} items.")
+                print(f"Success! Found {item_count} items.", flush=True)
             except Exception as e:
-                print(f"Error processing {url}: {e}")
+                print(f"Error processing {url}: {e}", flush=True)
                 traceback.print_exc()
             finally:
                 if img_path.exists():
@@ -116,12 +116,12 @@ if __name__ == "__main__":
         try:
             run_sync()
         except Exception as e:
-            print(f"Sync error: {e}")
+            print(f"Sync error: {e}", flush=True)
     else:
         while True:
             try:
                 run_sync()
             except Exception as e:
-                print(f"Sync error: {e}")
-            print("Sleeping for 60 seconds...")
+                print(f"Sync error: {e}", flush=True)
+            print("Sleeping for 60 seconds...", flush=True)
             time.sleep(60)
