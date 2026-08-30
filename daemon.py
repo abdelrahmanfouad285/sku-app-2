@@ -107,27 +107,39 @@ def run_sync():
                 # Let's temporarily mock the path name
                 original_name = img_path.name
                 
-                rows, item_count = core.process_image(None, img_path, "gemini-3.6-flash")
+                success = False
+                for model_name in ["gemini-3.6-flash", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro-vision"]:
+                    try:
+                        rows, item_count = core.process_image(None, img_path, model_name)
+                        
+                        # Now we need to overwrite the source_filename to be the URL so it's marked as processed
+                        for r in rows:
+                            r["source_filename"] = url
+                            for k, v in meta.items():
+                                r[k] = v
+                            
+                        # Save to SQL
+                        for r in rows:
+                            core.append_product(r)
+                        
+                        print(f"Success with {model_name}! Found {item_count} items.", flush=True)
+                        success = True
+                        break
+                    except Exception as e:
+                        error_str = str(e)
+                        if '429' in error_str and 'quota' in error_str.lower():
+                            print(f"⚠️ Quota exceeded for {model_name}. Trying next model...", flush=True)
+                            continue
+                        else:
+                            print(f"Error processing {url} with {model_name}: {e}", flush=True)
+                            traceback.print_exc()
+                            # If it's a non-quota error, skip this URL completely and move to the next one
+                            success = True # prevent sys.exit
+                            break
                 
-                # Now we need to overwrite the source_filename to be the URL so it's marked as processed
-                for r in rows:
-                    r["source_filename"] = url
-                    for k, v in meta.items():
-                        r[k] = v
-                    
-                # Save to SQL
-                for r in rows:
-                    core.append_product(r)
-                
-                print(f"Success! Found {item_count} items.", flush=True)
-            except Exception as e:
-                error_str = str(e)
-                if '429' in error_str and 'quota' in error_str.lower():
-                    print("⚠️  Google Gemini API Daily Quota Exceeded (20/day limit). Stopping sync for now.", flush=True)
-                    print("The GitHub Action will try again later, but won't process more until tomorrow unless billing is enabled.", flush=True)
+                if not success:
+                    print("⚠️ All models exhausted their daily quota. Stopping sync for now.", flush=True)
                     sys.exit(0)
-                print(f"Error processing {url}: {e}", flush=True)
-                traceback.print_exc()
             finally:
                 if img_path.exists():
                     os.remove(img_path)
