@@ -212,7 +212,7 @@ with st.sidebar:
 st.title("AI SKU Agent")
 st.caption("Drop product photos into input_photos/. Google Gemini extracts SKU data directly into this editable table.")
 
-tab_upload, tab_data, tab_sql, tab_log = st.tabs(["ðŸ“¥ Upload & Process", "ðŸ“Š Results & Edit", "ðŸ—„ï¸ SQL Auto-Sync", "ðŸ“ Log"])
+tab_upload, tab_data, tab_sql, tab_log = st.tabs(["📤 Upload & Process", "📝 Results & Edit", "🗄️ SQL Auto-Sync", "📜 Log"])
 
 
 # ---- Tab 1: Upload & Process ---------------------------------------------
@@ -323,7 +323,7 @@ with tab_upload:
 with tab_data:
     df = _load_existing_excel()
 
-    with st.expander("ðŸ”Ž  Filters", expanded=False):
+    with st.expander("🛠️ Filters", expanded=False):
         fcols = st.columns(3, gap="medium")
         with fcols[0]:
             needs_review = st.checkbox(
@@ -425,7 +425,7 @@ with tab_data:
             "using the buttons above."
         )
         confirm = st.checkbox("I understand this will delete all data", key="clear_confirm")
-        if st.button("ðŸ—‘ï¸  Clear table", type="secondary", disabled=not confirm):
+        if st.button("🗑️ Clear table", type="secondary", disabled=not confirm):
             try:
                 empty_df = pd.DataFrame(columns=core.EXCEL_COLUMNS)
                 _write_dataframe_to_excel(empty_df)
@@ -441,15 +441,15 @@ with tab_data:
 
 # ---- Tab SQL Auto-Sync ---------------------------------------------------
 with tab_sql:
-    st.subheader("ðŸ—„ï¸ Sync Photos from SQL Database")
+    st.subheader("🗄️ Sync Photos from SQL Database")
     st.write("Click this button to automatically pull any new photos uploaded to the `audit_records` table, process them with Gemini, and save the extracted items into `sku_data`.")
     
-    if st.button("ðŸš€ Run SQL Sync Now", type="primary"):
+    if st.button("🚀 Run SQL Sync Now", type="primary"):
         import daemon
         with st.spinner("Syncing with database and extracting products (this may take a few minutes)..."):
             try:
                 daemon.run_sync()
-                st.success("âœ… Sync complete! Check the View Data tab to see the new rows.")
+                st.success("✅ Sync complete! Check the View Data tab to see the new rows.")
             except Exception as e:
                 st.error(f"Failed to sync: {e}")
                 
