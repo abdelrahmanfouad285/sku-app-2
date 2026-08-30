@@ -87,7 +87,7 @@ def check_password():
     if st.session_state.get('password_correct', False):
         return True
 
-    st.markdown('# ðŸ”’ Secure Login')
+    st.markdown('# 🔒 Secure Login')
     st.text_input('Enter Password', type='password', on_change=password_entered, key='password')
     if 'password_correct' in st.session_state and not st.session_state['password_correct']:
         st.error('Incorrect password')
@@ -195,7 +195,7 @@ def _to_excel_bytes(df: pd.DataFrame) -> bytes:
 # ---------------------------------------------------------------------------
 
 with st.sidebar:
-    st.header("âš™ï¸ Settings")
+    st.header("⚙️ Settings")
     st.caption("Using Google Gemini API.")
     st.session_state.model = "Gemini 3.6 Flash (Cloud)"
     
@@ -231,17 +231,17 @@ with tab_upload:
 
     cols = st.columns([1, 1, 2])
     with cols[0]:
-        save_clicked = st.button("ðŸ’¾  Save uploads", width='stretch')
+        save_clicked = st.button("💾 Save uploads", width='stretch')
     with cols[1]:
         run_clicked = st.button(
-            "ðŸš€  Process all images in input_photos/",
+            "🚀 Process all images in input_photos/",
             type="primary",
             width='stretch',
             disabled=st.session_state.processing or not True,
         )
     with cols[2]:
         pending = len(list(core.INPUT_DIR.iterdir())) if core.INPUT_DIR.exists() else 0
-        st.caption(f"Folder: `{core.INPUT_DIR.resolve()}`  â€¢  â³ Pending: {pending}")
+        st.caption(f"Folder: {core.INPUT_DIR.resolve()}  •  ⏳ Pending: {pending}")
 
     if save_clicked and uploaded:
         saved, skipped = _save_uploaded_files(uploaded)
