@@ -252,7 +252,7 @@ with tab_upload:
         progress = st.progress(0.0, text="Starting…")
         status = st.empty()
 
-        client = core.OpenAI(base_url=st.session_state.base_url, api_key="***")
+        client = None
         core.MODEL = st.session_state.model
 
         images = core.list_input_images()
