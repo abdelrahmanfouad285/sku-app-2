@@ -139,101 +139,39 @@ def _save_uploaded_files(uploaded_files) -> tuple[list[Path], list[str]]:
     return saved, skipped
 
 
-def _load_existing_excel() -> pd.DataFrame:
-    """Read sku_data.xlsx into a DataFrame, always returning EXCEL_COLUMNS shape.
 
-    If the file's header is missing canonical columns (e.g. an older
-    version of the code wrote 11 columns and dropped `price`), the
-    excel_manager self-heal will rewrite the file under the canonical
-    schema before we read it. We surface the heal event in the UI.
-    """
-    if not core.EXCEL_PATH.exists():
-        return pd.DataFrame(columns=core.EXCEL_COLUMNS)
+from sqlalchemy import create_engine
+import os
+
+def _get_engine():
+    import streamlit as st
     try:
-        # Trigger a self-heal if the on-disk header doesn't match the
-        # canonical EXCEL_COLUMNS. This is what made the table look
-        # "empty" — rows were present but column-shifted.
-        from excel_manager import _header_is_canonical, _self_heal_workbook
-        from openpyxl import load_workbook as _lw
-        _wb = _lw(core.EXCEL_PATH)
-        _ws = _wb.active
-        if not _header_is_canonical(_ws):
-            _self_heal_workbook(_wb, _ws)
-            st.info("🔧 sku_data.xlsx had a mismatched header — repaired automatically. A backup was written next to it.")
+        url = st.secrets["DATABASE_URL"]
+    except Exception:
+        url = os.environ.get("DATABASE_URL")
+    return create_engine(url)
 
-        df = pd.read_excel(core.EXCEL_PATH, engine="openpyxl")
-        # Coerce literal "null" strings the LLM sometimes returns to None
-        # so the table shows blanks instead of the word "null".
-        for col in core.EXCEL_COLUMNS:
-            if col not in df.columns:
-                df[col] = None
-            else:
-                df[col] = df[col].apply(
-                    lambda v: None if (isinstance(v, str) and v.strip().lower() in {"null", "none", "nil", "n/a", "na"})
-                    else v
-                )
-        # Strip any phantom columns (e.g. "Unnamed: 11" from a wider old sheet).
-        df = df[[c for c in df.columns if c in core.EXCEL_COLUMNS]]
-        # Re-order to canonical order.
+def _load_existing_excel() -> pd.DataFrame:
+    import pandas as pd
+    import streamlit as st
+    import main as core
+    try:
+        engine = _get_engine()
+        df = pd.read_sql_table('sku_data', engine)
         for col in core.EXCEL_COLUMNS:
             if col not in df.columns:
                 df[col] = None
         return df[core.EXCEL_COLUMNS]
     except Exception as exc:
-        st.warning(f"Could not read existing Excel file: {exc}")
         return pd.DataFrame(columns=core.EXCEL_COLUMNS)
 
-
 def _write_dataframe_to_excel(df: pd.DataFrame) -> None:
-    """Overwrite sku_data.xlsx with the given DataFrame.
-
-    Used for "Save edits" and "Clear table". Preserves header style and
-    column widths and re-applies the yellow highlight to rows that need
-    review.
-    """
-    if core.EXCEL_PATH.exists():
-        wb = load_workbook(core.EXCEL_PATH)
-        ws = wb.active
-        # Drop all data rows (keep header).
-        if ws.max_row > 1:
-            ws.delete_rows(2, ws.max_row)
-    else:
-        from openpyxl import Workbook
-        from openpyxl.styles import Alignment, Font, PatternFill as PF
-
-        wb = Workbook()
-        ws = wb.active
-        ws.title = "SKU Data"
-        ws.append(core.EXCEL_COLUMNS)
-        for col_idx, _ in enumerate(core.EXCEL_COLUMNS, start=1):
-            cell = ws.cell(row=1, column=col_idx)
-            cell.fill = PF(start_color="FFD9D9D9", end_color="FFD9D9D9", fill_type="solid")
-            cell.font = Font(bold=True)
-            cell.alignment = Alignment(horizontal="left", vertical="center")
-
-    highlight = PatternFill(start_color="FFFFE699", end_color="FFFFE699", fill_type="solid")
-    none_fill = PatternFill(fill_type=None)
-    required_fields = ("sku", "barcode_number", "product_name", "brand", "quantity_or_size")
-
-    for _, row in df.iterrows():
-        values = [None if pd.isna(row.get(col)) else row.get(col) for col in core.EXCEL_COLUMNS]
-        ws.append(values)
-        excel_row = ws.max_row
-        conf_raw = row.get("confidence")
-        conf = conf_raw.lower() if isinstance(conf_raw, str) else "low"
-        has_null = any(row.get(f) in (None, "") or pd.isna(row.get(f)) for f in required_fields)
-        needs_review = conf == "low" or has_null
-        fill = highlight if needs_review else none_fill
-        for col_idx in range(1, len(core.EXCEL_COLUMNS) + 1):
-            ws.cell(row=excel_row, column=col_idx).fill = fill
-
-    for col_idx, header in enumerate(core.EXCEL_COLUMNS, start=1):
-        letter = ws.cell(row=1, column=col_idx).column_letter
-        ws.column_dimensions[letter].width = max(14, min(40, len(str(header)) + 4))
-
-    core.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    wb.save(core.EXCEL_PATH)
-
+    import streamlit as st
+    try:
+        engine = _get_engine()
+        df.to_sql('sku_data', engine, if_exists='replace', index=False)
+    except Exception as exc:
+        st.error(f"Failed to save to Postgres: {exc}")
 
 def _to_csv_bytes(df: pd.DataFrame) -> bytes:
     return df.to_csv(index=False).encode("utf-8")
