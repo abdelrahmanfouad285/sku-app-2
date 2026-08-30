@@ -7,7 +7,6 @@ EXCEL_COLUMNS = [
     "source_filename",
     "item_index",
     "sku",
-    "barcode_number",
     "product_name",
     "brand",
     "quantity_or_size",
