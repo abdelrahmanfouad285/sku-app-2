@@ -3,20 +3,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 from pipeline_helpers import OUTPUT_DIR
 
-EXCEL_COLUMNS = [
-    "source_filename",
-    "processed_at",
-    "item_index",
-    "item_count",
-    "sku",
-    "product_name",
-    "brand",
-    "flavor_or_variant",
-    "size",
-    "quantity",
-    "confidence",
-    "notes",
-]
+EXCEL_COLUMNS = ["source_filename", "processed_at", "item_index", "item_count", "date", "bi_weekly_round", "wk", "rtm", "tdm", "area_name", "client", "client_code", "sku", "product_name", "brand", "flavor_or_variant", "size", "quantity", "confidence", "notes"]
 EXCEL_PATH = OUTPUT_DIR / "sku_data.xlsx"
 
 def _get_engine():

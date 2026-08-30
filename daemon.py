@@ -55,7 +55,8 @@ def run_sync():
         photo_link1_mp, photo_link2_mp, 
         photo_link1_sp, photo_link2_sp, 
         photo_link1_ambient, photo_link2_ambient, 
-        storefront_photo
+        storefront_photo,
+        "Date", "Bi-Weekly Round", "WK", "RTM", "TDM", "Area Name", "Client", "Client Code"
     FROM audit_records
     ORDER BY id DESC LIMIT 200
     """
@@ -68,18 +69,28 @@ def run_sync():
         'storefront_photo'
     ]
     
-    new_urls = set()
+    new_urls = {}
     for _, row in audit_df.iterrows():
+        meta = {
+            "date": row.get("Date"),
+            "bi_weekly_round": row.get("Bi-Weekly Round"),
+            "wk": row.get("WK"),
+            "rtm": row.get("RTM"),
+            "tdm": row.get("TDM"),
+            "area_name": row.get("Area Name"),
+            "client": row.get("Client"),
+            "client_code": row.get("Client Code"),
+        }
         for col in columns_to_check:
             url = row.get(col)
             if url and isinstance(url, str) and url.startswith("http"):
                 if url not in processed_urls:
-                    new_urls.add(url)
+                    new_urls[url] = meta
                     
-    print(f"Found {len(new_urls, flush=True)} new URLs to process.", flush=True)
+    print(f"Found {len(new_urls)} new URLs to process.", flush=True)
     
     core.ensure_dirs()
-    for url in list(new_urls):
+    for url, meta in new_urls.items():
         print(f"Processing {url}...", flush=True)
         img_path = download_image(url, core.INPUT_DIR)
         if img_path:
@@ -95,6 +106,8 @@ def run_sync():
                 # Now we need to overwrite the source_filename to be the URL so it's marked as processed
                 for r in rows:
                     r["source_filename"] = url
+                    for k, v in meta.items():
+                        r[k] = v
                     
                 # Save to SQL
                 for r in rows:

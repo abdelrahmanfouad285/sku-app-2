@@ -164,6 +164,46 @@ def _load_existing_excel() -> pd.DataFrame:
             df = df.rename(columns={'quantity_or_size': 'size'})
         if 'visible_unit_count' in df.columns:
             df = df.rename(columns={'visible_unit_count': 'quantity'})
+
+        # --- BACKFILL LOGIC for metadata ---
+        if 'client' in df.columns and df['client'].isna().any() and 'source_filename' in df.columns:
+            try:
+                audit_df = pd.read_sql_query('SELECT * FROM audit_records', engine)
+                url_to_meta = {}
+                for _, r in audit_df.iterrows():
+                    meta = {
+                        'date': r.get('Date') or r.get('date'),
+                        'bi_weekly_round': r.get('Bi-Weekly Round') or r.get('bi_weekly_round'),
+                        'wk': r.get('WK') or r.get('wk'),
+                        'rtm': r.get('RTM') or r.get('rtm'),
+                        'tdm': r.get('TDM') or r.get('tdm'),
+                        'area_name': r.get('Area Name') or r.get('area_name'),
+                        'client': r.get('Client') or r.get('client'),
+                        'client_code': r.get('Client Code') or r.get('client_code'),
+                    }
+                    for col in ['photo_link1_mp', 'photo_link2_mp', 'photo_link1_sp', 'photo_link2_sp', 'photo_link1_ambient', 'photo_link2_ambient', 'storefront_photo']:
+                        url = r.get(col)
+                        if url and isinstance(url, str):
+                            url_to_meta[url] = meta
+                
+                # Update df
+                needs_save = False
+                for idx, row in df.iterrows():
+                    url = row['source_filename']
+                    if url in url_to_meta:
+                        meta = url_to_meta[url]
+                        for k, v in meta.items():
+                            if pd.isna(row.get(k)) and v is not None:
+                                df.at[idx, k] = v
+                                needs_save = True
+                
+                if needs_save:
+                    # Save back to database
+                    df.to_sql('sku_data', engine, if_exists='replace', index=False)
+            except Exception as e:
+                print(f"Backfill failed: {e}")
+        # --- END BACKFILL LOGIC ---
+
         for col in core.EXCEL_COLUMNS:
             if col not in df.columns:
                 df[col] = None
