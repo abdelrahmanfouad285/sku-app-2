@@ -191,7 +191,7 @@ def _to_excel_bytes(df: pd.DataFrame) -> bytes:
 with st.sidebar:
     st.header("âš™ï¸ Settings")
     st.caption("Using Google Gemini API.")
-    st.session_state.model = "Gemini 2.5 Flash (Cloud)"
+    st.session_state.model = "Gemini 3.6 Flash (Cloud)"
     
     st.selectbox(
         "AI Vision Model",

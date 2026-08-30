@@ -149,7 +149,7 @@ def process_image(
     try:
         if "Gemini" in str(requested_model) or client is None:
             from llm import extract_with_gemini
-            parsed = extract_with_gemini("gemini-2.5-flash", image_b64)
+            parsed = extract_with_gemini("gemini-3.6-flash", image_b64)
         else:
             parsed = extract_with_ollama(
                 client, requested_model, image_b64

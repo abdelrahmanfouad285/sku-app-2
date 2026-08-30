@@ -90,7 +90,7 @@ def run_sync():
                 # Let's temporarily mock the path name
                 original_name = img_path.name
                 
-                rows, item_count = core.process_image(None, img_path, "gemini-2.5-flash")
+                rows, item_count = core.process_image(None, img_path, "gemini-3.6-flash")
                 
                 # Now we need to overwrite the source_filename to be the URL so it's marked as processed
                 for r in rows:
