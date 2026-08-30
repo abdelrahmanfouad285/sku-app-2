@@ -50,13 +50,7 @@ def run_sync():
 
     # Get URLs from audit_records
     query = """
-    SELECT 
-        id, 
-        photo_link1_mp, photo_link2_mp, 
-        photo_link1_sp, photo_link2_sp, 
-        photo_link1_ambient, photo_link2_ambient, 
-        storefront_photo,
-        "Date", "Bi-Weekly Round", "WK", "RTM", "TDM", "Area Name", "Client", "Client Code"
+    SELECT *
     FROM audit_records
     ORDER BY id DESC LIMIT 200
     """
@@ -72,15 +66,26 @@ def run_sync():
     new_urls = {}
     for _, row in audit_df.iterrows():
         meta = {
-            "date": row.get("Date"),
-            "bi_weekly_round": row.get("Bi-Weekly Round"),
-            "wk": row.get("WK"),
-            "rtm": row.get("RTM"),
-            "tdm": row.get("TDM"),
-            "area_name": row.get("Area Name"),
-            "client": row.get("Client"),
-            "client_code": row.get("Client Code"),
+            "date": None,
+            "bi_weekly_round": None,
+            "wk": None,
+            "rtm": None,
+            "tdm": None,
+            "area_name": None,
+            "client": None,
+            "client_code": None,
         }
+        for k, v in row.items():
+            kl = str(k).lower().replace('-', '').replace('_', '').replace(' ', '')
+            if kl == 'date': meta['date'] = v
+            elif kl == 'biweeklyround': meta['bi_weekly_round'] = v
+            elif kl == 'wk': meta['wk'] = v
+            elif kl == 'rtm': meta['rtm'] = v
+            elif kl == 'tdm': meta['tdm'] = v
+            elif kl == 'areaname': meta['area_name'] = v
+            elif kl == 'client': meta['client'] = v
+            elif kl == 'clientcode': meta['client_code'] = v
+
         for col in columns_to_check:
             url = row.get(col)
             if url and isinstance(url, str) and url.startswith("http"):

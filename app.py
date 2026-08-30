@@ -172,19 +172,37 @@ def _load_existing_excel() -> pd.DataFrame:
                 url_to_meta = {}
                 for _, r in audit_df.iterrows():
                     meta = {
-                        'date': r.get('Date') or r.get('date'),
-                        'bi_weekly_round': r.get('Bi-Weekly Round') or r.get('bi_weekly_round'),
-                        'wk': r.get('WK') or r.get('wk'),
-                        'rtm': r.get('RTM') or r.get('rtm'),
-                        'tdm': r.get('TDM') or r.get('tdm'),
-                        'area_name': r.get('Area Name') or r.get('area_name'),
-                        'client': r.get('Client') or r.get('client'),
-                        'client_code': r.get('Client Code') or r.get('client_code'),
+                        'date': None,
+                        'bi_weekly_round': None,
+                        'wk': None,
+                        'rtm': None,
+                        'tdm': None,
+                        'area_name': None,
+                        'client': None,
+                        'client_code': None,
                     }
+                    for k, v in r.items():
+                        kl = str(k).lower().replace('-', '').replace('_', '').replace(' ', '')
+                        if kl == 'date': meta['date'] = v
+                        elif kl == 'biweeklyround': meta['bi_weekly_round'] = v
+                        elif kl == 'wk': meta['wk'] = v
+                        elif kl == 'rtm': meta['rtm'] = v
+                        elif kl == 'tdm': meta['tdm'] = v
+                        elif kl == 'areaname': meta['area_name'] = v
+                        elif kl == 'client': meta['client'] = v
+                        elif kl == 'clientcode': meta['client_code'] = v
+
                     for col in ['photo_link1_mp', 'photo_link2_mp', 'photo_link1_sp', 'photo_link2_sp', 'photo_link1_ambient', 'photo_link2_ambient', 'storefront_photo']:
                         url = r.get(col)
                         if url and isinstance(url, str):
                             url_to_meta[url] = meta
+                            # Also add the filename as a key so old rows can match!
+                            filename = url.split("/")[-1]
+                            if not filename.lower().endswith(('.jpg', '.png', '.jpeg', '.heic')):
+                                filename += ".jpg"
+                            url_to_meta[filename] = meta
+                            url_to_meta[url.split("/")[-1]] = meta
+
                 
                 # Update df
                 needs_save = False
@@ -193,7 +211,7 @@ def _load_existing_excel() -> pd.DataFrame:
                     if url in url_to_meta:
                         meta = url_to_meta[url]
                         for k, v in meta.items():
-                            if pd.isna(row.get(k)) and v is not None:
+                            if (pd.isna(row.get(k)) or str(row.get(k)).strip().lower() in {'none', 'null', 'nan', ''}) and v is not None:
                                 df.at[idx, k] = v
                                 needs_save = True
                 
