@@ -18,7 +18,7 @@ def _get_engine():
     return create_engine(url)
 
 def _needs_review(row: dict) -> bool:
-    required = ("sku", "product_name", "brand", "size")
+    required = ("sku", "product_name", "brand", "size", "quantity", "flavor_or_variant", "date", "bi_weekly_round", "wk", "rtm", "tdm", "area_name", "client", "client_code")
     for field in required:
         v = row.get(field)
         if v is None or str(v).strip() == "":

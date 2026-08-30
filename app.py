@@ -369,7 +369,7 @@ with tab_data:
             needs_review = st.checkbox(
                 "Show only rows needing review (yellow)",
                 value=False,
-                help="Low confidence OR any null in sku/product_name/brand/quantity",
+                help="Low confidence OR any null in required fields",
             )
         with fcols[1]:
             brands = sorted({b for b in df["brand"].dropna().unique() if str(b).strip()})
@@ -379,7 +379,7 @@ with tab_data:
             conf_filter = st.multiselect("Filter by confidence", options=conf_options, default=[])
 
     # "Needs review" uses the same fields the Excel writer highlights on.
-    required_for_review = ("sku", "product_name", "brand", "size")
+    required_for_review = ("sku", "product_name", "brand", "size", "quantity", "flavor_or_variant", "date", "bi_weekly_round", "wk", "rtm", "tdm", "area_name", "client", "client_code")
 
     view_df = df.copy()
     if needs_review:
