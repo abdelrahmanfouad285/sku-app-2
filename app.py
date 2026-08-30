@@ -16,35 +16,6 @@ import io
 
 st.set_page_config(page_title="AI SKU Agent", layout="wide", page_icon="🤖")
 
-# --- Security check ---
-def check_password():
-    def password_entered():
-        import os
-        try:
-            secret_pass = st.secrets.get('APP_PASSWORD')
-        except Exception:
-            secret_pass = os.environ.get('APP_PASSWORD', 'admin123')
-        if not secret_pass:
-            secret_pass = 'admin123'
-
-        if st.session_state.get('password') == secret_pass:
-            st.session_state['password_correct'] = True
-            del st.session_state['password']
-        else:
-            st.session_state['password_correct'] = False
-
-    if st.session_state.get('password_correct', False):
-        return True
-
-    st.markdown('# 🔒 Secure Login')
-    st.text_input('Enter Password', type='password', on_change=password_entered, key='password')
-    if 'password_correct' in st.session_state and not st.session_state['password_correct']:
-        st.error('Incorrect password')
-    return False
-
-if not check_password():
-    st.stop()
-
 # --- Modern UI Styles ---
 st.markdown("""
 <style>
