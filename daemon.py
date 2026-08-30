@@ -7,6 +7,7 @@ from pathlib import Path
 from sqlalchemy import create_engine
 import main as core
 import traceback
+import sys
 
 def get_engine():
     db_uri = os.environ.get("DATABASE_URL")
