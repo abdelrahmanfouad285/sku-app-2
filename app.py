@@ -255,7 +255,7 @@ with tab_upload:
     if run_clicked:
         st.session_state.processing = True
         st.session_state.log_lines = []
-        progress = st.progress(0.0, text="Startingâ€¦")
+        progress = st.progress(0.0, text="Starting...")
         status = st.empty()
 
         client = None
@@ -271,7 +271,7 @@ with tab_upload:
             new_rows: list[dict] = []
             failures = 0
             for i, img_path in enumerate(images, start=1):
-                status.info(f"Processing {img_path.name} ({i}/{len(images)})â€¦")
+                status.info(f"Processing {img_path.name} ({i}/{len(images)})...")
                 # --- LLM + validation stage ---
                 try:
                     rows, item_count = core.process_image(None, img_path, st.session_state.model)
@@ -309,7 +309,7 @@ with tab_upload:
             elapsed = time.perf_counter() - t0
             st.session_state.rows.extend(new_rows)
             summary = (
-                f"Done in {elapsed:.1f}s â€” {len(new_rows)} row(s) added, {failures} failure(s). "
+                f"Done in {elapsed:.1f}s — {len(new_rows)} row(s) added, {failures} failure(s). "
                 f"Workbook: {core.EXCEL_PATH}"
             )
             st.session_state["_last_summary"] = summary
@@ -368,7 +368,7 @@ with tab_data:
 
     bcols = st.columns([1, 1, 1, 2])
     with bcols[0]:
-        save_edits = st.button("ðŸ’¾  Save edits", type="primary", disabled=view_df.empty)
+        save_edits = st.button("💾 Save edits", type="primary", disabled=view_df.empty)
     with bcols[1]:
         st.download_button(
             "â¬‡ï¸  CSV",
@@ -415,11 +415,11 @@ with tab_data:
 
     # --- Per-image log (current session) ---
     if st.session_state.get("log_lines"):
-        with st.expander("ðŸ“‹  Per-image log (this session)", expanded=False):
+        with st.expander("📜 Per-image log (this session)", expanded=False):
             st.code("\n".join(st.session_state.log_lines[-50:]), language="log")
 
 
-    with st.expander("âš ï¸  Danger zone", expanded=False):
+    with st.expander("⚠️ Danger zone", expanded=False):
         st.caption(
             "These actions permanently delete data. Download a backup first "
             "using the buttons above."
