@@ -24,17 +24,17 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from openai import OpenAI
 
-from utils.excel_manager import (
+
+from excel_manager import (
     EXCEL_COLUMNS,
     EXCEL_PATH,
     append_product,
     append_rows_to_excel,
 )
-from utils.image_utils import encode_image_as_base64
-from utils.llm import extract_with_ollama
-from utils.pipeline_helpers import (
+from image_utils import encode_image_as_base64
+from llm import extract_with_ollama
+from pipeline_helpers import (
     INPUT_DIR,
     LOG_CSV_PATH,
     OLLAMA_BASE_URL_DEFAULT,
@@ -129,7 +129,7 @@ def _coerce_null_strings(item: dict) -> dict:
     return out
 
 def process_image(
-    client: OpenAI | None,
+    client,
     path: Path,
     model: str | None = None,
     dry_run: bool = False,
@@ -148,7 +148,7 @@ def process_image(
     requested_model = model or MODEL
     try:
         if "Gemini" in str(requested_model) or client is None:
-            from utils.llm import extract_with_gemini
+            from llm import extract_with_gemini
             parsed = extract_with_gemini("gemini-3.6-flash", image_b64)
         else:
             parsed = extract_with_ollama(

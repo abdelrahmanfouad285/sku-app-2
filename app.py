@@ -96,7 +96,7 @@ def check_password():
 if not check_password():
     st.stop()
 
-from utils.pipeline_helpers import VALID_EXTS
+from pipeline_helpers import VALID_EXTS
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -153,7 +153,7 @@ def _load_existing_excel() -> pd.DataFrame:
         # Trigger a self-heal if the on-disk header doesn't match the
         # canonical EXCEL_COLUMNS. This is what made the table look
         # "empty" — rows were present but column-shifted.
-        from utils.excel_manager import _header_is_canonical, _self_heal_workbook
+        from excel_manager import _header_is_canonical, _self_heal_workbook
         from openpyxl import load_workbook as _lw
         _wb = _lw(core.EXCEL_PATH)
         _ws = _wb.active
