@@ -80,7 +80,7 @@ with tab_upload:
                 status.info(f"Analyzing {img_path.name} with Gemini...")
                 
                 try:
-                    rows, item_count = core.process_image(None, img_path, "Gemini 3.6 Flash (Cloud)")
+                    rows, item_count = core.process_image(None, img_path, "Gemini 1.5 Flash (Cloud)")
                     rows_added += len(rows)
                     st.session_state.log_lines.append(f"SUCCESS: {img_path.name} -> {item_count} items")
                     
