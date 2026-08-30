@@ -109,13 +109,19 @@ def run_sync():
                     os.remove(img_path)
 
 if __name__ == "__main__":
+    import sys
     import dotenv
     dotenv.load_dotenv()
-    while True:
+    if "--once" in sys.argv:
         try:
             run_sync()
         except Exception as e:
             print(f"Sync error: {e}")
-        
-        print("Sleeping for 60 seconds...")
-        time.sleep(60)
+    else:
+        while True:
+            try:
+                run_sync()
+            except Exception as e:
+                print(f"Sync error: {e}")
+            print("Sleeping for 60 seconds...")
+            time.sleep(60)
