@@ -371,14 +371,14 @@ with tab_data:
         save_edits = st.button("💾 Save edits", type="primary", disabled=view_df.empty)
     with bcols[1]:
         st.download_button(
-            "â¬‡ï¸  CSV",
+            "📥 CSV",
             data=_to_csv_bytes(df),
             file_name=f"sku_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
             mime="text/csv",
         )
     with bcols[2]:
         st.download_button(
-            "â¬‡ï¸  Excel",
+            "📊 Excel",
             data=_to_excel_bytes(df),
             file_name=f"sku_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
