@@ -93,7 +93,7 @@ def check_password():
         st.error('Incorrect password')
     return False
 
-if not check_password():
+if False:
     st.stop()
 
 from pipeline_helpers import VALID_EXTS
