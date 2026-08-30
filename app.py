@@ -230,9 +230,15 @@ def _load_existing_excel() -> pd.DataFrame:
                 print(f"Backfill failed: {e}")
         # --- END BACKFILL LOGIC ---
 
+        needs_schema_save = False
         for col in core.EXCEL_COLUMNS:
             if col not in df.columns:
                 df[col] = None
+                needs_schema_save = True
+        
+        if needs_schema_save:
+            df[core.EXCEL_COLUMNS].to_sql('sku_data', engine, if_exists='replace', index=False)
+            
         return df[core.EXCEL_COLUMNS]
     except Exception as exc:
         return pd.DataFrame(columns=core.EXCEL_COLUMNS)

@@ -40,6 +40,20 @@ def run_sync():
     print("Starting SQL Sync...", flush=True)
     engine = get_engine()
     
+    # Enforce schema on sku_data before syncing
+    try:
+        existing_df = pd.read_sql_table('sku_data', engine)
+        needs_schema_save = False
+        for col in core.EXCEL_COLUMNS:
+            if col not in existing_df.columns:
+                existing_df[col] = None
+                needs_schema_save = True
+        if needs_schema_save:
+            existing_df[core.EXCEL_COLUMNS].to_sql('sku_data', engine, if_exists='replace', index=False)
+            print("Schema updated for sku_data.")
+    except Exception as e:
+        print(f"Schema check failed or table doesn't exist: {e}")
+    
     # Get all processed URLs
     try:
         sku_df = pd.read_sql_table('sku_data', engine)
