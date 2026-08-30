@@ -46,7 +46,7 @@ def run_sync():
     except:
         processed_urls = set()
         
-    print(f"Found {len(processed_urls, flush=True)} already processed URLs.", flush=True)
+    print(f"Found {len(processed_urls)} already processed URLs.", flush=True)
 
     # Get URLs from audit_records
     query = """
