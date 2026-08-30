@@ -122,7 +122,7 @@ def run_sync():
                 original_name = img_path.name
                 
                 success = False
-                for model_name in ["gemini-3.6-flash", "gemini-3.7-flash", "gemini-1.5-flash", "gemini-1.5-pro"]:
+                for model_name in ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.5-flash"]:
                     try:
                         rows, item_count = core.process_image(None, img_path, model_name)
                         
@@ -137,7 +137,7 @@ def run_sync():
                             core.append_product(r)
                         
                         print(f"Success with {model_name}! Found {item_count} items. Sleeping 4s for rate limits...", flush=True)
-                        time.sleep(13)  # Dashboard shows 5 RPM limit
+                        time.sleep(4.5)  # Flash Lite allows 15 RPM
                         success = True
                         break
                     except Exception as e:
