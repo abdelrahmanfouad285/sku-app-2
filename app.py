@@ -181,6 +181,8 @@ def _load_existing_excel() -> pd.DataFrame:
                         'client': None,
                         'client_code': None,
                     }
+                    link_cols = ['photo_link1_mp', 'photo_link2_mp', 'photo_link1_sp', 'photo_link2_sp', 'photo_link1_ambient', 'photo_link2_ambient', 'storefront_photo']
+                    
                     for k, v in r.items():
                         kl = str(k).lower().replace('-', '').replace('_', '').replace(' ', '')
                         if kl == 'date': meta['date'] = v
@@ -192,23 +194,25 @@ def _load_existing_excel() -> pd.DataFrame:
                         elif kl == 'client': meta['client'] = v
                         elif kl == 'clientcode': meta['client_code'] = v
 
-                    for col in ['photo_link1_mp', 'photo_link2_mp', 'photo_link1_sp', 'photo_link2_sp', 'photo_link1_ambient', 'photo_link2_ambient', 'storefront_photo']:
-                        url = r.get(col)
-                        if url and isinstance(url, str):
-                            url_to_meta[url] = meta
-                            # Also add the filename as a key so old rows can match!
-                            filename = url.split("/")[-1]
-                            if not filename.lower().endswith(('.jpg', '.png', '.jpeg', '.heic')):
-                                filename += ".jpg"
-                            url_to_meta[filename] = meta
-                            url_to_meta[url.split("/")[-1]] = meta
-
+                    for k, v in r.items():
+                        if str(k).lower() in link_cols:
+                            url = v
+                            if url and isinstance(url, str):
+                                url_to_meta[url] = meta
+                                filename = url.split("/")[-1]
+                                if not filename.lower().endswith(('.jpg', '.png', '.jpeg', '.heic')):
+                                    filename += ".jpg"
+                                url_to_meta[filename] = meta
+                                import urllib.parse
+                                decoded = urllib.parse.unquote(filename)
+                                url_to_meta[decoded] = meta
                 
-                # Update df
                 needs_save = False
+                matches_found = 0
                 for idx, row in df.iterrows():
                     url = row['source_filename']
                     if url in url_to_meta:
+                        matches_found += 1
                         meta = url_to_meta[url]
                         for k, v in meta.items():
                             if (pd.isna(row.get(k)) or str(row.get(k)).strip().lower() in {'none', 'null', 'nan', ''}) and v is not None:
@@ -216,8 +220,12 @@ def _load_existing_excel() -> pd.DataFrame:
                                 needs_save = True
                 
                 if needs_save:
-                    # Save back to database
                     df.to_sql('sku_data', engine, if_exists='replace', index=False)
+                    import streamlit as st
+                    st.success(f"Successfully backfilled metadata for {matches_found} rows from audit_records!")
+                elif matches_found == 0 and not df.empty:
+                    import streamlit as st
+                    st.warning("⚠️ Could not link these rows to audit_records. If these photos were manually dragged-and-dropped instead of SQL Synced, they won't have Client/Area metadata in the database! You can use 'Clear table' and 'Run SQL Sync Now' to fetch them properly.")
             except Exception as e:
                 print(f"Backfill failed: {e}")
         # --- END BACKFILL LOGIC ---
