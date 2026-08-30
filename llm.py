@@ -471,6 +471,11 @@ def _finalize(text):
 
 import google.generativeai as genai
 import os
+
+api_key = os.environ.get("GEMINI_API_KEY")
+if api_key:
+    genai.configure(api_key=api_key)
+
 import base64
 from io import BytesIO
 from PIL import Image

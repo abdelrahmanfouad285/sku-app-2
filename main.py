@@ -1,5 +1,5 @@
-"""
-SKU Data Entry Agent — shared core module.
+﻿"""
+SKU Data Entry Agent â€” shared core module.
 
 Both CLI entry points (main_claude.py / main_local.py) and the Streamlit
 UI (app.py) import from this module. It re-exports the common configuration,
@@ -48,14 +48,14 @@ from pipeline_helpers import (
 )
 
 
-# Default model — auto-overridden in the Streamlit UI from the sidebar.
+# Default model â€” auto-overridden in the Streamlit UI from the sidebar.
 MODEL = "llama3.2-vision:latest"
 
 # Re-export for callers that still expect the old constant name.
 OLLAMA_BASE_URL = OLLAMA_BASE_URL_DEFAULT
 
 
-# Module-level logger — imported by app.py as core.log
+# Module-level logger â€” imported by app.py as core.log
 log = logging.getLogger("sku_agent")
 if not log.handlers:
     log.setLevel(logging.INFO)
@@ -149,7 +149,7 @@ def process_image(
     try:
         if "Gemini" in str(requested_model) or client is None:
             from llm import extract_with_gemini
-            parsed = extract_with_gemini("gemini-1.5-flash", image_b64)
+            parsed = extract_with_gemini("gemini-2.5-flash", image_b64)
         else:
             parsed = extract_with_ollama(
                 client, requested_model, image_b64
@@ -161,7 +161,7 @@ def process_image(
             if fallback.lower() == (requested_model or "").lower():
                 raise
             print(
-                f"[lookup] Model {requested_model} failed with mllama error (Ollama too old) — "
+                f"[lookup] Model {requested_model} failed with mllama error (Ollama too old) â€” "
                 f"falling back to {fallback}. Please run: winget upgrade Ollama.Ollama",
                 flush=True,
             )
@@ -205,7 +205,7 @@ def process_image(
         rows.append(row)
         if dry_run:
             continue
-        # Excel write — append_product is now idempotent on (filename, item_index)
+        # Excel write â€” append_product is now idempotent on (filename, item_index)
         # so retries are safe. We still re-raise so callers can decide how to log.
         try:
             append_product(row)
