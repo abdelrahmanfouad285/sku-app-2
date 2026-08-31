@@ -122,7 +122,7 @@ def run_sync():
                 original_name = img_path.name
                 
                 success = False
-                for model_name in ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.5-flash"]:
+                for model_name in ["gemini-3.6-flash", "gemini-3.7-flash", "gemini-1.5-flash", "gemini-1.5-pro"]:
                     try:
                         rows, item_count = core.process_image(None, img_path, model_name)
                         
